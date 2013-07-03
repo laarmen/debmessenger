@@ -29,7 +29,6 @@
 
 (defn changes-to-msg [body]
       (let ((ch (Changes (body))))
-        [(+ "changes." (.get_as_string ch "Source"))
-         ch]))
+        (, (+ "changes." (.get_as_string ch "Source")) ch)))
 
 (setv hook (mail-hook changes-to-msg publish))
