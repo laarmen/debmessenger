@@ -22,13 +22,28 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(import [debian.deb822 [Changes]])
+(import [debian.deb822 [Changes Deb822Dict]])
 (import [io [FileIO]])
 (import [debmessenger.utils [mail-hook]])
 (import [debmessenger.message [publish]])
 
+(defn undeb822 [item]
+      (cond ((isinstance item Deb822Dict)
+             (let ((new_dict {}))
+               (do
+                 (for (key (iter item))
+                      (assoc new_dict key (undeb822 (get item key))))
+                 new_dict)))
+            ((isinstance item list)
+             (let ((new_list []))
+               (do (for (i item)
+                        (.append new_list (undeb822 i)))
+                 new_list)))
+            (True item))) ;; Return the item if not the right type
+
 (defn changes-to-msg [body]
-      (let ((ch (Changes (body))))
-        (, (+ "changes." (.get_as_string ch "Source")) ch)))
+      (let ((ch (Changes body)))
+        (, (+ "changes." (get ch "Source")) (undeb822 ch))))
 
 (setv hook (mail-hook changes-to-msg publish))
+
