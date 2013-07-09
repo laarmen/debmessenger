@@ -24,7 +24,7 @@
 
 (import [debian.deb822 [Changes Deb822Dict]])
 (import [io [FileIO]])
-(import [debmessenger.utils [mail-hook]])
+(import [debmessenger.utils [mail-hook get-email-body]])
 (import [debmessenger.message [publish]])
 
 (defn undeb822 [item]
@@ -41,8 +41,8 @@
                  new_list)))
             (True item))) ;; Return the item if not the right type
 
-(defn changes-to-msg [body]
-      (let ((ch (Changes body)))
+(defn changes-to-msg [filename]
+      (let ((ch (Changes (get-email-body filename))))
         (, (+ "changes." (get ch "Source")) (undeb822 ch))))
 
 (setv hook (mail-hook changes-to-msg publish))

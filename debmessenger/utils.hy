@@ -32,7 +32,7 @@
 
 (defn mail-hook [translator publisher]
       (lambda (filename)
-        (let ((msg-tuple (translator (get-email-body filename))))
+        (let ((msg-tuple (translator filename)))
           (kwapply (publisher)
                    { "topic" (get msg-tuple 0)
                      "msg" (get msg-tuple 1)
