@@ -24,9 +24,11 @@
 
 (import [ email.parser [ Parser ] ])
 
+(defn file-to-mail [filename]
+      (.parse (Parser) (open filename)))
+
 (defn get-email-body [filename]
-      (.get_payload (.parse (Parser)
-                            (open filename))))
+      (.get_payload (file-to-mail filename)))
 
 (defn mail-hook [translator publisher]
       (lambda (filename)
