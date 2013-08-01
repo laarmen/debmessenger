@@ -29,31 +29,19 @@ from debmessenger.message import publish
 
 def undeb822(item):
     if isinstance(item, Deb822Dict):
-
-        def _hy_anon_fn_1():
-            new_dict = {}
-            for key in iter(item):
-                new_dict[key] = undeb822(item[key])
-                return new_dict
-        _hy_anon_var_2 = _hy_anon_fn_1()
-    else:
-        if isinstance(item, list):
-
-            def _hy_anon_fn_2():
-                new_list = []
-                for i in item:
-                    new_list.append(undeb822(i))
-                    return new_list
-            _hy_anon_var_1 = _hy_anon_fn_2()
-        else:
-            _hy_anon_var_1 = (item if True else None)
-            _hy_anon_var_2 = _hy_anon_var_1
-            return _hy_anon_var_2
+        new_dict = {}
+        for key in iter(item):
+            new_dict[key] = undeb822(item[key])
+        return new_dict
+    if isinstance(item, list):
+        new_list = []
+        for i in item:
+            new_list.append(undeb822(i))
+        return new_list
+    return item
 
 def changes_to_msg(filename):
+    ch = Changes(get_email_body(filename))
+    return ((u'changes.' + ch[u'Source']), undeb822(ch))
 
-    def _hy_anon_fn_4():
-        ch = Changes(get_email_body(filename))
-        return ((u'changes.' + ch[u'Source']), undeb822(ch))
-    return _hy_anon_fn_4()
 hook = mail_hook(changes_to_msg, publish)

@@ -27,14 +27,11 @@ from fedmsg.config import load_config
 from threading import RLock
 __fedmsg_name = u'debmessenger'
 
-def _hy_anon_fn_1():
-    config = load_config()
-    config[u'name'] = __fedmsg_name
-    return FedMsgContext(**config)
-__context = _hy_anon_fn_1()
+__config = load_config()
+__config[u'name'] = __fedmsg_name
+__context = FedMsgContext(**config)
 __context_lock = RLock()
 
 def publish(*args, **kwargs):
     with __context_lock:
-        _hy_anon_var_1 = apply(__context.publish, args, kwargs)
-    return _hy_anon_var_1
+        return __context.publish(*args, **kwargs)

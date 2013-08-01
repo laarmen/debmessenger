@@ -29,23 +29,14 @@ def file_to_mail(filename):
     return Parser().parse(open(filename))
 
 def get_email_body(filename):
-
-    def _hy_anon_fn_2():
-        payload = file_to_mail(filename).get_payload()
-        return (payload[0] if isinstance(payload, list) else payload)
-    return _hy_anon_fn_2()
+    payload = file_to_mail(filename).get_payload()
+    return payload[0] if isinstance(payload, list) else payload
 
 def mail_hook(translator, publisher):
-
-    def _hy_anon_fn_5(filename):
+    def hook(filename):
         try:
-
-            def _hy_anon_fn_4():
-                (topic, msg) = translator(filename)
-                (topic, msg)
-                return publisher(**{u'topic': topic, u'msg': msg})
-            _hy_anon_var_1 = _hy_anon_fn_4()
+            topic, msg = translator(filename)
+            publisher(**{u'topic': topic, u'msg': msg})
         except (Exception,) as e:
-            _hy_anon_var_1 = traceback.print_exc()
-        return _hy_anon_var_1
-    return _hy_anon_fn_5
+            traceback.print_exc()
+    return hook

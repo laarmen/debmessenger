@@ -26,11 +26,24 @@ from debmessenger.utils import file_to_mail, mail_hook
 from debmessenger.message import publish
 
 def bug_to_msg(mail):
+    type_nb = mail[u'X-Debian-PR-Message'].split(u' ')
+    tags = mail.get(u'X-Debian-PR-Keywords', u'').split()
+    payload = mail.get_payload()
+    if isinstance(payload, list) and 'patch' in tags:
+        patches = [p.get_payload() for p in payload if p.get_content_type == u'text/x-diff']
+    else:
+        patches = []
+    return [u'bugs.{}'.format(type_nb[0]), {
+        u'from': mail[u'From'],
+        u'source': mail[u'X-Debian-PR-Source'],
+        u'package': mail[u'X-Debian-PR-Package'],
+        u'tags': tags,
+        u'type': type_nb[0],
+        u'nb': type_nb[1],
+        u'title':
+        mail[u'Subject'],
+        u'content': (payload[0].get_payload() if isinstance(payload, list) else payload),
+        u'patches': patches
+    }]
 
-    def _hy_anon_fn_1():
-        type_nb = mail[u'X-Debian-PR-Message'].split(u' ')
-        tags = mail.get(u'X-Debian-PR-Keywords', u'').split()
-        payload = mail.get_payload()
-        return [u'bugs.{}'.format(type_nb[0]), {u'from': mail[u'From'], u'source': mail[u'X-Debian-PR-Source'], u'package': mail[u'X-Debian-PR-Package'], u'tags': tags, u'type': type_nb[0], u'nb': type_nb[1], u'title': mail[u'Subject'], u'content': (payload[0].get_payload() if isinstance(payload, list) else payload), u'patches': ([p.get_payload() for p in payload if (u'text/x-diff' == p.get_content_type())] if ((u'patch' in tags) and isinstance(payload, list)) else [])}]
-    return _hy_anon_fn_1()
 hook = mail_hook((lambda filename: bug_to_msg(file_to_mail(filename))), publish)
