@@ -2,7 +2,6 @@
 
 import sys
 
-import hy.importer
 from pyinotify import WatchManager, IN_CREATE, Notifier, ProcessEvent
 
 from debmessenger import changes, bugs
