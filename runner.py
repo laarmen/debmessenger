@@ -4,11 +4,11 @@ import sys
 
 from pyinotify import WatchManager, IN_CREATE, Notifier, ProcessEvent
 
-from debmessenger import changes, bugs
+from debmessenger import package, bug
 
 hooks = {
-        sys.argv[1]: changes.hook,
-        sys.argv[2]: bugs.hook,
+        sys.argv[1]: package.hook,
+        sys.argv[2]: bug.hook,
         }
 
 class EventHandler(ProcessEvent):

@@ -42,6 +42,6 @@ def undeb822(item):
 
 def changes_to_msg(filename):
     ch = Changes(get_email_body(filename))
-    return ((u'changes.' + ch[u'Source']), undeb822(ch))
+    return ((u'package.upload'), undeb822(ch))
 
 hook = mail_hook(changes_to_msg, publish)

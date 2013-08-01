@@ -33,7 +33,7 @@ def bug_to_msg(mail):
         patches = [p.get_payload() for p in payload if p.get_content_type == u'text/x-diff']
     else:
         patches = []
-    return [u'bugs.{}'.format(type_nb[0]), {
+    return (u'bug.{}'.format(type_nb[0]), {
         u'from': mail[u'From'],
         u'source': mail[u'X-Debian-PR-Source'],
         u'package': mail[u'X-Debian-PR-Package'],
@@ -44,6 +44,6 @@ def bug_to_msg(mail):
         mail[u'Subject'],
         u'content': (payload[0].get_payload() if isinstance(payload, list) else payload),
         u'patches': patches
-    }]
+    })
 
 hook = mail_hook((lambda filename: bug_to_msg(file_to_mail(filename))), publish)
