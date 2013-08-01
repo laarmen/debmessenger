@@ -23,20 +23,24 @@
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 (import [ email.parser [ Parser ] ])
+(import [ traceback ])
 
 (defn file-to-mail [filename]
       (.parse (Parser) (open filename)))
 
 (defn get-email-body [filename]
-      (let (payload (.get_payload (file-to-mail filename)))
+      (let [[payload (.get_payload (file-to-mail filename))]]
         (if (isinstance payload list)
           (get payload 0) ; Let's keep things simple and take the first one.
           payload)))
 
 (defn mail-hook [translator publisher]
       (lambda (filename)
-        (let ((msg-tuple (translator filename)))
-          (kwapply (publisher)
-                   { "topic" (get msg-tuple 0)
-                     "msg" (get msg-tuple 1)
-                   }))))
+        (try
+          (let [[(, topic msg) (translator filename)]]
+              (kwapply (publisher)
+                       { "topic" topic
+                         "msg" msg
+                       }))
+           (except [e [Exception]]
+             (traceback.print_exc)))))

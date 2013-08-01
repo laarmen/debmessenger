@@ -3,7 +3,7 @@
 import sys
 
 import hy.importer
-from pyinotify import WatchManager, IN_MOVED_TO, Notifier, ProcessEvent
+from pyinotify import WatchManager, IN_CREATE, Notifier, ProcessEvent
 
 from debmessenger import changes, bugs
 
@@ -13,11 +13,12 @@ hooks = {
         }
 
 class EventHandler(ProcessEvent):
-    def process_IN_MOVED_TO(self, event):
+    def process_IN_CREATE(self, event):
         hooks[event.path](event.pathname)
 
 wm = WatchManager()
-wm.add_watch(sys.argv[1], IN_MOVED_TO)
+for dir in sys.argv[1:]:
+    wm.add_watch(dir, IN_CREATE)
 
 notifier = Notifier(wm, EventHandler())
 notifier.loop()

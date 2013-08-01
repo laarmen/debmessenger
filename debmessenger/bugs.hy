@@ -22,28 +22,30 @@
 ;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 ;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(import [ debmessenger.utils [ file-to-mail ] ])
+(import [ debmessenger.utils [ file-to-mail mail-hook ] ])
 (import [ debmessenger.message [ publish ] ])
 
 (defn bug-to-msg [mail]
-      (let ((type-nb (.split (get mail X-Debian-PR-Message) " "))
-            (tags (.split (get mail "X-Debian-PR-Keywords")))
-            (payload (.get_payload mail)))
-        {"source" (get mail "X-Debian-PR-Source")
-         "package" (get mail "X-Debian-PR-Package")
-         "tags" tags
-         "type" (get type-nb 0)
-         "nb" (get type-nb 1)
-         "title" (get mail "Subject")
-         "content" (if (isinstance payload list)
-                     (.get_payload (get payload 0))
-                     payload)
-         "patches" (if (and (in "patch" tags) (isinstance payload list))
-                     (list-comp
-                       (.get_payload p)
-                       (p payload)
-                       (= "text/x-diff" (.get_content_type p)))
-                     [])}))
+      (let [[type-nb (.split (get mail "X-Debian-PR-Message") " ")]
+            [tags (.split (.get mail "X-Debian-PR-Keywords" ""))]
+            [payload (.get_payload mail)]]
+        [(.format "bugs.{}" (get type-nb 0))
+         {"from" (get mail "From")
+          "source" (get mail "X-Debian-PR-Source")
+          "package" (get mail "X-Debian-PR-Package")
+          "tags" tags
+          "type" (get type-nb 0)
+          "nb" (get type-nb 1)
+          "title" (get mail "Subject")
+          "content" (if (isinstance payload list)
+                      (.get_payload (get payload 0))
+                      payload)
+          "patches" (if (and (in "patch" tags) (isinstance payload list))
+                      (list-comp
+                        (.get_payload p)
+                        (p payload)
+                        (= "text/x-diff" (.get_content_type p)))
+                      [])}]))
 
 (setv hook (mail-hook (lambda [filename]
                         (bug-to-msg (file-to-mail filename)))
