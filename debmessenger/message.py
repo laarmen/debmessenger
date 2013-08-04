@@ -29,7 +29,7 @@ __fedmsg_name = u'debmessenger'
 
 __config = load_config()
 __config[u'name'] = __fedmsg_name
-__context = FedMsgContext(**config)
+__context = FedMsgContext(**__config)
 __context_lock = RLock()
 
 def publish(*args, **kwargs):
