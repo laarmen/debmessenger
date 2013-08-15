@@ -40,7 +40,7 @@ class UnicodeMessage(Message):
     def __getitem__(self, item):
         ret = Message.__getitem__(self, item)
 
-        return self.decode_email_header(ret)
+        return self.decode_email_header(ret).replace(u'\n', ' ').replace('  ', ' ')
 
 
 def file_to_mail(filename):
