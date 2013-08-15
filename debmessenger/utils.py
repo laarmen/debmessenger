@@ -22,15 +22,35 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from email.header import decode_header
+from email.message import Message
 from email.parser import Parser
 import traceback
 
+
+class UnicodeMessage(Message):
+    @staticmethod
+    def decode_email_header(header):
+        parts = []
+        for part, encoding in decode_header(header):
+            parts.append(part.decode(encoding or "utf-8"))
+
+        return u''.join(parts)
+
+    def __getitem__(self, item):
+        ret = Message.__getitem__(self, item)
+
+        return self.decode_email_header(ret)
+
+
 def file_to_mail(filename):
-    return Parser().parse(open(filename))
+    return Parser(UnicodeMessage).parse(open(filename))
+
 
 def get_email_body(filename):
     payload = file_to_mail(filename).get_payload()
     return payload[0] if isinstance(payload, list) else payload
+
 
 def mail_hook(translator, publisher):
     def hook(filename):
